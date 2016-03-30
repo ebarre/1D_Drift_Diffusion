@@ -32,7 +32,7 @@ Vright = 0.2;
 %The density of holes for left and right contact based on parabolic 
 %assumption (+degeneracy of K & K') + MaxwellBoltzmann Approx of
 %Fermi-level
-pl = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef+Vleft)/kT); 
+pl = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef+Vlef)/kT); 
 pr = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef+Vright)/kT); 
 %p0 = 1e12*(1e2)^3;          %1e12 carriers /cm^3 (1e2cm/1m)^3        
 p = pl*ones(1,nx);            % the free carrier density
@@ -61,8 +61,8 @@ for i=1:maxIter
     %all(abs(V-Vnew)<1e-14)
     %pause(1)
     V = Vnew;
-    p0 = 2.*(m*kT/(2*pi*hbar^2))^(3/2).*exp(-(Ef-V)./kT);
-    [J, pnew] = current1D(V, pl, pr, p0);
+    %p0 = 2.*(m*kT/(2*pi*hbar^2))^(3/2).*exp(-(Ef-V)./kT);
+    [J, pnew] = current1D(V, pl, pr);
     
     %plotting V& p 2 of 3
     %{

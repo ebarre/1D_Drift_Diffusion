@@ -1,4 +1,4 @@
-function [ J, p ] = current1D( V, pb, pt )
+function [ J, p ] = current1D( V, pb, pt, p0 )
 %This gives the current density and charge distribution for a 1D voltage
 %distribuion assuming boundary condition for leftmost side (i.e. set left 
 %to 0 V) and right (set righthandside to some voltage Vapp)
@@ -40,7 +40,7 @@ BC = zeros(nx,1);
 BC(1) = pb;      % p0 at bottom (0 V)
 BC(end) = pt;    % p0 at top (0.2 V)
 
-RC = ones(nx,1)*(-dx*pb/tau);
+RC = ones(nx,1).*(-dx.*p0./tau);
 RC(1) = 0;
 RC(end) = 0;
 
