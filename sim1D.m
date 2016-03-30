@@ -73,7 +73,7 @@ for i=1:maxIter
     plot(x, Vnew, 'Color', [0.5,0.5,color])
     pause(1) 
     %}
-    if(all(abs(pnew-p')< pl/1e10))
+    if(all(abs(pnew-p')< pl/1e12))
         i
         break
     end
@@ -88,6 +88,7 @@ for i=1:maxIter
 end
 
 %plotting V& p 3 of 3
+%{
 figure(3)
 hold off
 figure(4)
