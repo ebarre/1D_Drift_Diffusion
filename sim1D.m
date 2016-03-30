@@ -1,5 +1,6 @@
 %For a simple 1D equation with no generation and Dirichlet
 %Boundary conditions calculates the current/charge distribution/voltage
+%Elyse Barre
 
 %takes a while to converge when using ridiculous input but eventually does
 close all
