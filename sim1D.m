@@ -2,10 +2,10 @@
 %Boundary conditions calculates the current/charge distribution/voltage
 %Elyse Barre
 
-%takes a while to converge when using ridiculous input but eventually does
 close all
 
-global eps0 k T kT q0 tau mup m hbar dx
+%%
+global eps0 k T kT q0 tau mup m hbar Dp
 %constants
 eps0 = 8.854e-12;           % F/m  permittivity of free space
 hbar = 6.682119e-16;        % eVs
@@ -13,56 +13,67 @@ q0 =1.609e-19;              % C
 k = 8.61734318e-5;          % eV/K Boltzmann constant
 T = 300;                    % Temperature in Kelvin
 kT = k*T;                   % eV
-tau = 1e-7;                 % Estimate a hole lifetime of about 10 ns
-mup = 100*(1/100)^2;        %cm^2/Vs*(1m/100cm)^2 
+tau = 1e-3;                 % Estimate a hole lifetime 
+mup = 100*(1/100)^2;        % cm^2/Vs*(1m/100cm)^2 
 m0 = 5.68562975e-12;        % eV*s^2/m^2 electron mass
 m = 0.5*m0;                 % Assuming an effective mass (Look for value)
+Dp = kT*mup;                % m^2/s^2
+%Diffusion Length (Assuming that I need  a step size smaller than the
+%diffusion length)
+L_Diff = sqrt(Dp*tau);
 
-%choice of variables
-nx = 5000;                  % steps in x direction
-dx = 1e-12;                  %spatial step is defined as 1nm
-x = linspace(0, dx*nx, nx); %m
-
-
+%%
 %initial guess for carrier density is linear and only considering holes
 Ef = 0.5;                   % eV setting a fermi level rel to valence
 Vleft = 0;
-Vright = 0.2; 
+Vright = 1; 
 
 %The density of holes for left and right contact based on parabolic 
 %assumption (+degeneracy of K & K') + MaxwellBoltzmann Approx of
 %Fermi-level
 pl = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef)/kT); 
 pr = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef)/kT); 
-%p0 = 1e12*(1e2)^3;          %1e12 carriers /cm^3 (1e2cm/1m)^3        
+
+%% %choice of variables
+nx = 1000;              % steps in x direction
+xL = 5e-6;             
+x = linspace(0,xL, nx);
+dx = x(2)-x(1);
+
+%Debye length: (represents largest mesh size - see Computation Electronics
+%by Vasileska and Goodnick) 
+Ld = sqrt(eps*(kT*q0)/(pl*q0^2));  % meters (kT*q0 is in Joules )
+
 p = pl*ones(1,nx);            % the free carrier density
 %p = (1e8*x-50).^2*10*(1e2)^3 +p0; %weird initial guess 
 %rho = 100*exp(-((x-mean(x))/(100*dx)).^2);
-rho = q0*p; %need to think about this one a bit more
-rho(1) = 0; %i define these so that my boundary conditions are correct
-rho(nx) = 0; %i define these so that my boundary conditions are correct
+rho = q0*p; 
+rho(1) = 0;         %Defined in order to implement boundary conditions
+rho(nx) = 0;        %Defined in order to implement boundary conditions
 
+%%
 maxIter =1e3;
-V = Pois_1D(rho, Vleft, Vright, x);
+V = Pois_1D(x, rho, Vleft, Vright);
+
 %plotting V& p 1 of 3
 %{
-%figure(4)
+figure(4)
 %plot(x, p, 'Color', [0.5,0.5,0])
 %ylim([pl pr])
-%hold on
+hold on
 figure(3)
 plot(x, V, 'Color', [0.5,0.5,0])
-ylim([0, 0.2])
 hold on
 %}
+
 for i=1:maxIter
-    Vnew = Pois_1D(rho, Vleft, Vright, x);
+    Vnew = Pois_1D(x, rho, Vleft, Vright);
     %rarely vary by greater than 10^14
     %all(abs(V-Vnew)<1e-14)
     %pause(1)
     V = Vnew;
     %p0 = 2.*(m*kT/(2*pi*hbar^2))^(3/2).*exp(-(Ef-V)./kT);
-    [J, pnew] = current1D(V, pl, pr);
+    [J, pnew] = current1D(x, V, pl, pr);
     
     %plotting V& p 2 of 3
     %{
@@ -95,6 +106,7 @@ figure(4)
 hold off
 %}
 
+%%
 figure(1)
 [hAx,hLine1,hLine2] = plotyy(x*1e6, rho, x*1e6, V, 'semilogy', 'plot');
 xlabel('x-axis (\mum)')

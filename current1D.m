@@ -1,4 +1,4 @@
-function [ J, p ] = current1D( V, pb, pt )
+function [ J, p ] = current1D( x, V, pb, pt )
 %This gives the current density and charge distribution for a 1D voltage
 %distribuion assuming boundary condition for leftmost side (i.e. set left 
 %to 0 V) and right (set righthandside to some voltage Vapp)
@@ -8,13 +8,11 @@ function [ J, p ] = current1D( V, pb, pt )
 % pb: boundary condition for concentration of holes in the bottom contact
 % pt: boundary condition for concentration of holes in the top contact
 
-global kT dx tau q0 mup
-
-%mobility of holes
-Dp = kT*mup;                %m^2/s^2
+global tau q0 mup Dp
 
 %step size
-nx = length(V);
+nx = length(x);
+dx = x(2)-x(1);            
 E(1:nx-1) = -(V(2:nx) - V(1:nx-1))/dx; %E(n) is actually E(n+1/2)
 %figure(3)
 %plot(E)
