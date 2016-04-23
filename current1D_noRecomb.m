@@ -31,7 +31,7 @@ for n = 1:nx
         G(n,n-1) = -B(n-1);
     end
 end
-
+condest(G)
 BC = zeros(1,nx);
 %Ohmic Boundary conditions
 BC(1) = pl;      % p0 at left end

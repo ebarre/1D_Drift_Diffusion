@@ -45,7 +45,7 @@ res = 1/sigma; %resistivity
 
 %% %choice of variables
 nx = 1000;              % steps in x direction
-xL = 5e-6;             
+xL = 5e-7;             
 x = linspace(0,xL, nx);
 dx = x(2)-x(1);
 
@@ -56,30 +56,30 @@ Ld = sqrt(eps*(kT*q0)/(p0*q0^2));  % meters (kT*q0 is in Joules )
 p = p0*ones(1,nx);            % the free carrier density
 %p = (1e8*x-50).^2*10*(1e2)^3 +p0; %weird initial guess 
 %rho = 100*exp(-((x-mean(x))/(100*dx)).^2);
-rho = q0*p; 
+rho = q0*(p-p0); 
 rho(1) = 0;         %Defined in order to implement boundary conditions
 rho(nx) = 0;        %Defined in order to implement boundary conditions
 
 %%
 maxIter =1e3;
-V_x1 = Pois_1D(x, rho, Vleft, V_xN);
+V = Pois_1D(x, rho, V_x1, V_xN);
 
 
 for i=1:maxIter
-    Vnew = Pois_1D(x, rho, Vleft, V_xN);
+    Vnew = Pois_1D(x, rho, V_x1, V_xN);
     %rarely vary by greater than 10^14
     %all(abs(V-Vnew)<1e-14)
     %pause(1)
-    V_x1 = Vnew;
+    V = Vnew;
     %p0 = 2.*(m*kT/(2*pi*hbar^2))^(3/2).*exp(-(Ef-V)./kT);
-    [J, pnew] = current1D_noRecomb(x, V_x1, pl, pr);
+    [J, pnew] = current1D_noRecomb(x, V, pl, pr);
     
     if(all(abs(pnew-p')< p0/1e10))
         i
         break
     end
     p=pnew';
-    rho = q0*p; 
+    rho = q0*(p-p0); 
     rho(1) = 0;
     rho(nx) = 0;
     
@@ -90,7 +90,7 @@ end
 
 %%
 figure(1)
-plot(x*1e6, V_x1, 'linewidth', 2)
+plot(x*1e6, V, 'linewidth', 2)
 xlabel('x-axis (\mum)')
 ylabel('Potential (V)') % right y-axis
 set(gca, 'fontsize', 14);

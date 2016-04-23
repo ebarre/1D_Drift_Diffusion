@@ -12,7 +12,7 @@ q0 =1.609e-19;              % C
 k = 8.61734318e-5;          % eV/K Boltzmann constant
 T = 300;                    % Temperature in Kelvin
 kT = k*T;                   % eV
-lt = [10^(-9), 10^(-8), 10^(-7), 10^(-6)];    % s estimate a hole lifetime 
+lt = logspace(-9, -4,6);    % s estimate a hole lifetime 
 mup = 100*(1/100)^2;        % cm^2/Vs*(1m/100cm)^2 
 m0 = 5.68562975e-12;        % eV*s^2/m^2 electron mass
 m = 0.5*m0;                 % Assuming an effective mass (Look for value)
@@ -56,7 +56,7 @@ Ld = sqrt(eps*(kT*q0)/(p0*q0^2));  % meters (kT*q0 is in Joules )
 p = p0*ones(1,nx);            % the free carrier density
 %p = (1e8*x-50).^2*10*(1e2)^3 +p0; %weird initial guess 
 %rho = 100*exp(-((x-mean(x))/(100*dx)).^2);
-rho = q0*p; 
+rho = q0*(p-p0); 
 rho(1) = 0;         %Defined in order to implement boundary conditions
 rho(nx) = 0;        %Defined in order to implement boundary conditions
 
@@ -79,7 +79,7 @@ for i=1:maxIter
         break
     end
     p=pnew';
-    rho = q0*p; 
+    rho = q0*(p-p0); 
     rho(1) = 0;
     rho(nx) = 0;
     
@@ -87,21 +87,34 @@ for i=1:maxIter
         fprintf('Does not converge. \n')
     end
 end
-color = nt/length(lt);
 figure(1)
-plot(x*1e6, V,'Color', [0, 0, color], 'linewidth', 2)
+plot(x*1e6, V,'linewidth', 2)
 xlabel('x-axis (\mum)')
 ylabel('Potential (V)') % right y-axis
 set(gca, 'fontsize', 14);
+%text(2,0.3, '\tau = 10^{-9}, 10^{-8}, 10^{-7}, 10^{-6}')
 hold on
 
 figure(2) 
-semilogy(x*1e6, p,'Color', [0, 0, color], 'linewidth', 2);
-xlabel('x-axis (\mum)')
+semilogy(x*1e6, p, 'linewidth', 2);
+xlabel('x-axis (\mum)1')
 ylabel('Hole concentration /m^3')
 set(gca, 'fontsize', 14);
 hold on
 pause(1)
+%{
+txt = sprintf('\\tau = 10^{%i}', nt-7);
+if(nt ==1)
+    text(x(100)*1e6+0.2,p(100)-0.5e14, txt)
+%elseif(nt ==3)
+%    text(x(100)*1e6,p(100)-2e14, txt)
+elseif(nt ==2)
+    text(x(100)*1e6,p(100)+1e14, txt)
+else
+    text(x(100)*1e6+0.5,p(100)-2e14, '\tau = 10^{-3},10^{-4}')
+end
+  %}  
+
 end
 
 %%
