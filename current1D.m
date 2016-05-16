@@ -28,7 +28,7 @@ for n = 1:nx
         G(n,n) = 1;
     else
         G(n,n+1) = A(n);
-        G(n,n) = B(n) - A(n-1) - dx/tau;
+        G(n,n) = B(n) - A(n-1) + dx/tau;
         G(n,n-1) = -B(n-1);
     end
 end
@@ -38,7 +38,7 @@ BC = zeros(nx,1);
 BC(1) = pb;      % p0 at bottom (0 V)
 BC(end) = pt;    % p0 at top (0.2 V)
 
-RC = ones(nx,1)*(-dx*pb/tau);
+RC = ones(nx,1)*(dx*pb/tau);
 RC(1) = 0;
 RC(end) = 0;
 

@@ -2,6 +2,8 @@
 
 
 close all
+clear all
+
 
 global eps0 k T kT q0 tau mup m hbar Dp
 %constants
@@ -45,7 +47,7 @@ res = 1/sigma; %resistivity
 
 %% %choice of variables
 nx = 1000;              % steps in x direction
-xL = 5e-7;             
+xL = 5e-6;             
 x = linspace(0,xL, nx);
 dx = x(2)-x(1);
 
@@ -56,7 +58,7 @@ Ld = sqrt(eps*(kT*q0)/(p0*q0^2));  % meters (kT*q0 is in Joules )
 p = p0*ones(1,nx);            % the free carrier density
 %p = (1e8*x-50).^2*10*(1e2)^3 +p0; %weird initial guess 
 %rho = 100*exp(-((x-mean(x))/(100*dx)).^2);
-rho = q0*(p-p0); 
+rho = q0*(p-0); 
 rho(1) = 0;         %Defined in order to implement boundary conditions
 rho(nx) = 0;        %Defined in order to implement boundary conditions
 
@@ -101,28 +103,33 @@ semilogy(x*1e6, p, 'r', 'linewidth', 2);
 xlabel('x-axis (\mum)')
 ylabel('Hole concentration /m^3')
 set(gca, 'fontsize', 14);
-%ylim([(4/5)*p0 1.2*p0])
+ylim([(p0-1e14) (p0+1e14)])
 
 %%
-%{
+
 % Actually looking at the current density and resistivity
 %plot current density to check
 figure(3)
 plot(x(1:end-1)*1e6, J, 'linewidth', 2);
 xlabel('x-axis (\mum)')
 ylabel('Current Density A/m^2')
+ylim([-10.9 -10.8])
+set(gca,'Fontsize', 14)
 
 %Okay, so the current looks mostly constant which is expected, let's check
 %a bit more carefully
-Javg = mean(J);
+Javg = mean(J)
 figure(4)
 plot(x(1:end-1)*1e6, J-Javg, 'linewidth', 2);
 xlabel('x-axis (\mum)')
 ylabel('Deviation from average current density A/m^2')
+set(gca,'Fontsize', 14)
+
 %Deviation smaller than 10^-12
-resCode = abs ( V_xN/ (Javg*xL) ) ;
-res;
-res_pavg = 1/(mean(p)*q0*mup);
-Deviation = abs(res-resCode);
+resCode = abs ( V_xN/ (Javg*xL) ) 
+res
+res_pavg = 1/(mean(p)*q0*mup)
+Deviation = abs(res-resCode)
+
 %}
 

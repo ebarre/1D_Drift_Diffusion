@@ -12,7 +12,8 @@ q0 =1.609e-19;              % C
 k = 8.61734318e-5;          % eV/K Boltzmann constant
 T = 300;                    % Temperature in Kelvin
 kT = k*T;                   % eV
-lt = logspace(-9, -4,6);    % s estimate a hole lifetime 
+%lt = logspace(-9, -4,6);    % s estimate a hole lifetime 
+lt = 10^(-9);
 mup = 100*(1/100)^2;        % cm^2/Vs*(1m/100cm)^2 
 m0 = 5.68562975e-12;        % eV*s^2/m^2 electron mass
 m = 0.5*m0;                 % Assuming an effective mass (Look for value)
@@ -44,7 +45,7 @@ res = 1/sigma; %resistivity
 %Use current code with no recombination so J is constant
 
 %% %choice of variables
-nx = 1000;              % steps in x direction
+nx = 300;              % steps in x direction
 xL = 5e-6;             
 x = linspace(0,xL, nx);
 dx = x(2)-x(1);
@@ -54,9 +55,8 @@ dx = x(2)-x(1);
 Ld = sqrt(eps*(kT*q0)/(p0*q0^2));  % meters (kT*q0 is in Joules )
 
 p = p0*ones(1,nx);            % the free carrier density
-%p = (1e8*x-50).^2*10*(1e2)^3 +p0; %weird initial guess 
-%rho = 100*exp(-((x-mean(x))/(100*dx)).^2);
 rho = q0*(p-p0); 
+%rho = q0*(p); 
 rho(1) = 0;         %Defined in order to implement boundary conditions
 rho(nx) = 0;        %Defined in order to implement boundary conditions
 
@@ -74,12 +74,13 @@ for i=1:maxIter
     %p0 = 2.*(m*kT/(2*pi*hbar^2))^(3/2).*exp(-(Ef-V)./kT);
     [J, pnew] = current1D_lifetimetest(x, V, pl, pr, lt(nt));
     
-    if(all(abs(pnew-p')< p0/1e10))
+    if(all(abs(pnew-p')< p0/1e12))
         i
         break
     end
     p=pnew';
     rho = q0*(p-p0); 
+    %rho = q0*(p); 
     rho(1) = 0;
     rho(nx) = 0;
     
@@ -121,7 +122,7 @@ end
 
 
 %%
-%{
+
 % Actually looking at the current density and resistivity
 %plot current density to check
 figure(3)

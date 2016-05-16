@@ -31,11 +31,11 @@ Vright = 1;
 %The density of holes for left and right contact based on parabolic 
 %assumption (+degeneracy of K & K') + MaxwellBoltzmann Approx of
 %Fermi-level
-pl = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef)/kT); 
-pr = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef)/kT); 
-
+p0 = 2*(m*kT/(2*pi*hbar^2))^(3/2)*exp(-(Ef)/kT); 
+pr = p0;
+pl = p0;
 %% %choice of variables
-nx = 1000;              % steps in x direction
+nx = 300;              % steps in x direction
 xL = 5e-6;             
 x = linspace(0,xL, nx);
 dx = x(2)-x(1);
@@ -44,10 +44,10 @@ dx = x(2)-x(1);
 %by Vasileska and Goodnick) 
 Ld = sqrt(eps*(kT*q0)/(pl*q0^2));  % meters (kT*q0 is in Joules )
 
-p = pl*ones(1,nx);            % the free carrier density
+p = p0*ones(1,nx);            % the free carrier density
 %p = (1e8*x-50).^2*10*(1e2)^3 +p0; %weird initial guess 
 %rho = 100*exp(-((x-mean(x))/(100*dx)).^2);
-rho = q0*p; 
+rho = q0*(p-p0); 
 rho(1) = 0;         %Defined in order to implement boundary conditions
 rho(nx) = 0;        %Defined in order to implement boundary conditions
 
@@ -84,12 +84,12 @@ for i=1:maxIter
     plot(x, Vnew, 'Color', [0.5,0.5,color])
     pause(1) 
     %}
-    if(all(abs(pnew-p')< pl/1e12))
+    if(all(abs(pnew-p')< p0/1e11))
         i
         break
     end
     p=pnew';
-    rho = q0*p; 
+    rho = q0*(p-p0); 
     rho(1) = 0;
     rho(nx) = 0;
     
@@ -108,15 +108,17 @@ hold off
 
 %%
 figure(1)
-[hAx,hLine1,hLine2] = plotyy(x*1e6, rho, x*1e6, V, 'semilogy', 'plot');
+[hAx,hLine1,hLine2] = plotyy(x*1e6, p, x*1e6, V, 'semilogy', 'plot');
 xlabel('x-axis (\mum)')
-ylabel(hAx(1),'Charge density (C/m^3)') % left y-axis
+ylabel(hAx(1),'Hole Concentration (1/m^3)') % left y-axis
 ylabel(hAx(2),'Potential (V)') % right y-axis
-%ylim(hAx(1), [0 1e-10])
+ylim(hAx(1), [(p0-1e16) (p0+1e16)])
 
+%{
 figure(2) 
 semilogy(x*1e6, p, 'r', 'linewidth', 2);
 %ylim([pr pl])
 xlabel('x-axis (\mum)')
 ylabel('Hole concentration /m^3')
 %ylim([(4/5)*p0 1.2*p0])
+%}
